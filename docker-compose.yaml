@@ -5,9 +5,10 @@ services:
     image: alpine/git
     container_name: download-searx-template-config-repository
     build: .
-    command: bash -c "git clone https://github.com/searx/searx-docker && mv ./searx-docker/* /build"
+    command: bash -c "git clone https://github.com/searx/searx-docker && mkdir filtron && mkdir caddy && mv ./searx-docker/Caddyfile /build/caddy && mv ./searx-docker/rules.json /build/filtron"
     volumes:
-      - searx-template-config:/build
+      - caddy-routes:/build/caddy
+      - filtron-rules:/build/filtron
       
   caddy:
     container_name: caddy
@@ -17,9 +18,9 @@ services:
     restart: on-failure
     network_mode: host
     volumes:
-      - searx-template-config/Caddyfile:/etc/caddy/Caddyfile:ro
-      - searx-caddy-data:/data:rw
-      - searx-caddy-config:/config:rw
+      - caddy-routes:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data:rw
+      - caddy-config:/config:rw
     environment:
       - SEARX_HOSTNAME=${SEARX_HOSTNAME:-localhost}
       - SEARX_TLS=${LETSENCRYPT_EMAIL:-internal}
@@ -42,7 +43,7 @@ services:
       - searx
     command: -listen 0.0.0.0:4040 -api 0.0.0.0:4041 -target searx:8080
     volumes:
-      - searx-template-config/rules.json:/etc/filtron/rules.json:rw
+      - filtron-rules:/etc/filtron/rules.json:rw
     read_only: true
     cap_drop:
       - ALL
@@ -95,7 +96,8 @@ networks:
       driver: default
 
 volumes:
-  searx-caddy-data:
-  searx-caddy-config:
+  caddy-data:
+  caddy-config:
+  caddy-routes:
+  filtron-rules:
   searx-config:
-  searx-template-config:
