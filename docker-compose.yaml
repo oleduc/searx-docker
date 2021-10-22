@@ -4,7 +4,13 @@ services:
   download-template:
     image: alpine/git
     container_name: download-template
-    command: sh -c "git clone https://github.com/searx/searx-docker && mkdir filtron && mkdir caddy && mv ./searx-docker/Caddyfile /build/caddy && mv ./searx-docker/rules.json /build/filtron"
+    command: sh -c "
+        cd /build/ &&
+        git clone https://github.com/oleduc/searx-docker &&
+        mkdir filtron && mkdir caddy &&
+        mv ./searx-docker/Caddyfile /build/caddy &&
+        mv ./searx-docker/rules.json /build/filtron
+      "
     volumes:
       - caddy-routes:/build/caddy
       - filtron-rules:/build/filtron
@@ -15,7 +21,7 @@ services:
     depends_on:
       - "download-template"
     restart: on-failure
-    network_mode: host
+    network_mode: searx
     volumes:
       - caddy-routes:/etc/caddy:rw
       - caddy-data:/data:rw
