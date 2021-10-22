@@ -3,9 +3,8 @@ version: '3.7'
 services:
   download-template:
     image: alpine/git
-    container_name: download-searx-template-config-repository
-    build: .
-    command: bash -c "git clone https://github.com/searx/searx-docker && mkdir filtron && mkdir caddy && mv ./searx-docker/Caddyfile /build/caddy && mv ./searx-docker/rules.json /build/filtron"
+    container_name: download-template
+    command: sh -c "git clone https://github.com/searx/searx-docker && mkdir filtron && mkdir caddy && mv ./searx-docker/Caddyfile /build/caddy && mv ./searx-docker/rules.json /build/filtron"
     volumes:
       - caddy-routes:/build/caddy
       - filtron-rules:/build/filtron
@@ -75,6 +74,8 @@ services:
   morty:
     container_name: morty
     image: dalf/morty
+    depends_on:
+      - "download-template"
     restart: always
     ports:
       - "127.0.0.1:3000:3000"
