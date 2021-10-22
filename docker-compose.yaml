@@ -78,8 +78,6 @@ services:
     environment:
       - MORTY_KEY=${MORTY_KEY}
       - MORTY_ADDRESS=0.0.0.0:3000
-    logging:
-      driver: none
     read_only: true
 
 networks:
