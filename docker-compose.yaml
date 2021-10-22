@@ -29,11 +29,6 @@ services:
     environment:
       - SEARX_HOSTNAME=${SEARX_HOSTNAME:-localhost}
       - SEARX_TLS=${LETSENCRYPT_EMAIL:-internal}
-    cap_drop:
-      - ALL
-    cap_add:
-      - NET_BIND_SERVICE
-      - DAC_OVERRIDE
 
   filtron:
     container_name: filtron
@@ -50,8 +45,6 @@ services:
     volumes:
       - filtron-config:/etc/filtron/:rw
     read_only: true
-    cap_drop:
-      - ALL
 
   searx:
     container_name: searx
@@ -70,13 +63,6 @@ services:
       - BASE_URL=https://${SEARX_HOSTNAME:-localhost}/
       - MORTY_URL=https://${SEARX_HOSTNAME:-localhost}/morty/
       - MORTY_KEY=${MORTY_KEY}
-    cap_drop:
-      - ALL
-    cap_add:
-      - CHOWN
-      - SETGID
-      - SETUID
-      - DAC_OVERRIDE
 
   morty:
     container_name: morty
@@ -95,8 +81,6 @@ services:
     logging:
       driver: none
     read_only: true
-    cap_drop:
-      - ALL
 
 networks:
   searx:
