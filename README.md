@@ -1,4 +1,4 @@
-# searx-docker for Portainer
+# Searx stack for Portainer
 
 Create a new searx instance in five minutes using [Portainer](https://www.portainer.io/)
 
