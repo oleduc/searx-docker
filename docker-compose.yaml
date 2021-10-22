@@ -4,14 +4,8 @@ services:
   download-template:
     image: alpine/git
     container_name: download-template
-    command: sh -c "
-        cd /build/ &&
-        git clone https://github.com/searx/searx-docker &&
-        mkdir filtron/ && mkdir caddy/ &&
-        mv ./searx-docker/Caddyfile /build/caddy/ &&
-        mv ./searx-docker/rules.json /build/filtron/ &&
-        ls -la /build/ && ls -la /build/caddy/ && ls -la /build/filtron/
-      "
+    command: ["-c", "cd /build/ && git clone https://github.com/searx/searx-docker && mkdir filtron/ && mkdir caddy/ && mv ./searx-docker/Caddyfile /build/caddy/ && mv ./searx-docker/rules.json /build/filtron/ && ls -la /build/ && ls -la /build/caddy/ && ls -la /build/filtron/"]
+    entrypoint: "ash"
     volumes:
       - caddy-routes:/build/caddy/
       - filtron-config:/build/filtron/
