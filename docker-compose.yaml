@@ -7,14 +7,15 @@ services:
     command: sh -c "
         cd /build/ &&
         git clone https://github.com/searx/searx-docker &&
-        mkdir filtron && mkdir caddy &&
-        mv ./searx-docker/Caddyfile /build/caddy &&
-        mv ./searx-docker/rules.json /build/filtron
+        mkdir filtron/ && mkdir caddy/ &&
+        mv ./searx-docker/Caddyfile /build/caddy/ &&
+        mv ./searx-docker/rules.json /build/filtron/ &&
+        ls -la /build/ && ls -la /build/caddy/ && ls -la /build/filtron/
       "
     volumes:
-      - caddy-routes:/build/caddy
-      - filtron-rules:/build/filtron
-      - filtron-rules:/git
+      - caddy-routes:/build/caddy/
+      - filtron-config:/build/filtron/
+      - .:/git
       
   caddy:
     container_name: caddy
@@ -28,7 +29,7 @@ services:
     networks:
       - searx
     volumes:
-      - caddy-routes:/etc/caddy:rw
+      - caddy-routes:/etc/caddy/:ro
       - caddy-data:/data:rw
       - caddy-config:/config:rw
     environment:
@@ -53,7 +54,7 @@ services:
       - searx
     command: -listen 0.0.0.0:4040 -api 0.0.0.0:4041 -target searx:8080
     volumes:
-      - filtron-rules:/etc/filtron/rules.json:rw
+      - filtron-config:/etc/filtron/:rw
     read_only: true
     cap_drop:
       - ALL
@@ -68,8 +69,8 @@ services:
       - searx
     command: ${SEARX_COMMAND:-}
     volumes:
-      - searx-config:/etc/searx:rw
-      - searx-config:/var/log
+      - searx-data:/etc/searx:rw
+      - searx-data:/var/log/uwsgi:rw
     environment:
       - BIND_ADDRESS=0.0.0.0:8080
       - BASE_URL=https://${SEARX_HOSTNAME:-localhost}/
@@ -112,5 +113,5 @@ volumes:
   caddy-data:
   caddy-config:
   caddy-routes:
-  filtron-rules:
-  searx-config:
+  filtron-config:
+  searx-data:
