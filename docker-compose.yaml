@@ -69,6 +69,7 @@ services:
     command: ${SEARX_COMMAND:-}
     volumes:
       - searx-config:/etc/searx:rw
+      - searx-config:/var/log
     environment:
       - BIND_ADDRESS=0.0.0.0:8080
       - BASE_URL=https://${SEARX_HOSTNAME:-localhost}/
