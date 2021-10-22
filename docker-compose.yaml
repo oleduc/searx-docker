@@ -6,7 +6,7 @@ services:
     container_name: download-template
     command: sh -c "
         cd /build/ &&
-        git clone https://github.com/oleduc/searx-docker &&
+        git clone https://github.com/searx/searx-docker &&
         mkdir filtron && mkdir caddy &&
         mv ./searx-docker/Caddyfile /build/caddy &&
         mv ./searx-docker/rules.json /build/filtron
@@ -21,7 +21,9 @@ services:
     depends_on:
       - "download-template"
     restart: on-failure
-    network_mode: searx
+    network_mode: host
+    networks:
+      - searx
     volumes:
       - caddy-routes:/etc/caddy:rw
       - caddy-data:/data:rw
