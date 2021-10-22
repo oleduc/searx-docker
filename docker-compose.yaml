@@ -37,8 +37,8 @@ services:
       - "download-template"
     restart: always
     ports:
-      - "127.0.0.1:4040:4040"
-      - "127.0.0.1:4041:4041"
+      - "4040:4040"
+      - "4041:4041"
     networks:
       - searx
     command: -listen 0.0.0.0:4040 -api 0.0.0.0:4041 -target searx:8080
@@ -52,6 +52,8 @@ services:
     depends_on:
       - "download-template"
     restart: always
+    ports:
+      - "8080:8080"
     networks:
       - searx
     command: ${SEARX_COMMAND:-}
@@ -71,7 +73,7 @@ services:
       - "download-template"
     restart: always
     ports:
-      - "127.0.0.1:3000:3000"
+      - "3000:3000"
     networks:
       - searx
     command: -timeout 6 -ipv6
