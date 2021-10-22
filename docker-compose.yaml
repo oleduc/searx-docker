@@ -1,16 +1,25 @@
 version: '3.7'
 
 services:
-
+  download-template:
+    image: alpine/git
+    container_name: download-searx-template-config-repository
+    build: .
+    command: bash -c "git clone https://github.com/searx/searx-docker && mv ./searx-docker/* /build"
+    volumes:
+      - searx-template-config:/build
+      
   caddy:
     container_name: caddy
     image: caddy:2-alpine
+    depends_on:
+      - "download-template"
     restart: on-failure
     network_mode: host
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy-data:/data:rw
-      - caddy-config:/config:rw
+      - searx-template-config/Caddyfile:/etc/caddy/Caddyfile:ro
+      - searx-caddy-data:/data:rw
+      - searx-caddy-config:/config:rw
     environment:
       - SEARX_HOSTNAME=${SEARX_HOSTNAME:-localhost}
       - SEARX_TLS=${LETSENCRYPT_EMAIL:-internal}
@@ -23,6 +32,8 @@ services:
   filtron:
     container_name: filtron
     image: dalf/filtron
+    depends_on:
+      - "download-template"
     restart: always
     ports:
       - "127.0.0.1:4040:4040"
@@ -31,7 +42,7 @@ services:
       - searx
     command: -listen 0.0.0.0:4040 -api 0.0.0.0:4041 -target searx:8080
     volumes:
-      - ./rules.json:/etc/filtron/rules.json:rw
+      - searx-template-config/rules.json:/etc/filtron/rules.json:rw
     read_only: true
     cap_drop:
       - ALL
@@ -39,12 +50,14 @@ services:
   searx:
     container_name: searx
     image: searx/searx:latest
+    depends_on:
+      - "download-template"
     restart: always
     networks:
       - searx
     command: ${SEARX_COMMAND:-}
     volumes:
-      - ./searx:/etc/searx:rw
+      - searx-config:/etc/searx:rw
     environment:
       - BIND_ADDRESS=0.0.0.0:8080
       - BASE_URL=https://${SEARX_HOSTNAME:-localhost}/
@@ -82,5 +95,7 @@ networks:
       driver: default
 
 volumes:
-  caddy-data:
-  caddy-config:
+  searx-caddy-data:
+  searx-caddy-config:
+  searx-config:
+  searx-template-config:
