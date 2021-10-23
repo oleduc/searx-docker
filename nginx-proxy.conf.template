@@ -7,7 +7,7 @@ proxy_cache_path /etc/cache-results levels=1:2 keys_zone=searx_results:${RESULTS
 server {
     listen *:80 default_server;
     listen [::]:80 default_server;
-    server_name ${SEARX_HOSTNAME} localhost searx-proxy;
+    server_name searx-proxy;
 
     include /etc/nginx/nginx-endpoints.conf;
 }
@@ -15,7 +15,7 @@ server {
 server {
     listen *:443 ssl;
     listen [::]:443 ssl;
-    server_name ${SEARX_HOSTNAME} localhost searx-proxy;
+    server_name searx-proxy;
 
     ssl_certificate     /etc/nginx/certs/fullchain.crt;
     ssl_certificate_key /etc/nginx/certs/private.key;
