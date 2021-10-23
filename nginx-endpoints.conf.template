@@ -4,11 +4,11 @@ location (/config/|/status/) {
 }
 
 location /static/* {
-    access_log off;
-    expires ${STATIC_CACHE_EXPIRATION};
-    add_header Cache-Control "public, max-age=${STATIC_CLIENT_CACHE_MAX_AGE}";
+    #access_log off;
+    #expires ${STATIC_CACHE_EXPIRATION};
+    #add_header Cache-Control "public, max-age=${STATIC_CLIENT_CACHE_MAX_AGE}";
     
-    proxy_cache searx_static;
+    #proxy_cache searx_static;
     proxy_pass http://searx:8080/;
 }
 
@@ -29,7 +29,7 @@ location /morty/ {
 
 # Filtron Forwaring catchall
 location / {
-    gzip_static on;
+    #gzip_static on;
 
     proxy_set_header X-Forwarded-Port $host;
     proxy_set_header Access-Control-Allow-Methods "GET, OPTIONS";
