@@ -93,7 +93,7 @@ services:
       - MORTY_ADDRESS=0.0.0.0:3000
     read_only: true
 
-network:
+networks:
     searx-cluster:
       driver: bridge
       driver_opts:
