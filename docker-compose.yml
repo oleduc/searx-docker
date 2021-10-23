@@ -8,13 +8,9 @@ services:
         mkdir -p /build/ && cd /build/ &&
         git clone ${CONFIG_REPO_URL} repo &&
         ls -la ./repo/ &&
-        mkdir -p filtron/ &&
-        mkdir -p nginx/ &&
-        mkdir -p nginx/certs &&
         mv ./repo/rules.json /build/filtron/ &&
         envsubst '$${SEARX_HOSTNAME} $${UPSTREAM_PROTOCOL}' < ./repo/nginx-proxy.conf.template > /build/nginx/conf.d/nginx-proxy.conf &&
-        cp ${SSL_CERT_PATH} /build/nginx/certs/fullchain.crt &&
-        cp ${SSL_KEY_PATH} /build/nginx/certs/private.key &&
+        cp /build/certs/* /build/nginx/certs/* &&
         ls -la /build/ && ls -la /build/filtron/ && ls -la /build/nginx/
       "
     environment:
@@ -23,6 +19,8 @@ services:
     volumes:
       - filtron-config:/build/filtron/:rw
       - nginx-config:/build/nginx/:rw
+      - ${SSL_CERT_PATH}:/build/certs/fullchain.crt:ro
+      - ${SSL_KEY_PATH}:/build/certs/private.key:ro
       - .:/git
 
   nginx:
