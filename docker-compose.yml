@@ -5,7 +5,8 @@ services:
     build: https://github.com/oleduc/git-config.git
     container_name: download-template
     networks:
-      - net-srx
+      net-srx:
+        ipv4_address: 172.28.5.205
     command: -c "
         mkdir -p /build/ && cd /build/ && rm -rf ./repo/ &&
         git clone ${CONFIG_REPO_URL} repo &&
@@ -41,12 +42,13 @@ services:
     container_name: searx-proxy
     image: nginx:1.21.3-alpine
     networks:
-      - net-srx
+      net-srx:
+        ipv4_address: 172.28.5.204
     restart: on-failure
     depends_on:
       - "download-template"
     ports:
-      - 172.28.5.8:${NGINX_HTTP_PORT:-6088}:80
+      - 172.28.5.204:${NGINX_HTTP_PORT:-6088}:80
       - 0.0.0.0:${NGINX_HTTPS_PORT:-3443}:443
     volumes:
       - nginx-config:/etc/nginx:rw
@@ -55,14 +57,16 @@ services:
     container_name: filtron
     image: dalf/filtron
     networks:
-      - net-srx
+      net-srx:
+        ipv4_address: 172.28.5.203
     depends_on:
       - "download-template"
+      - "searx-proxy"
     restart: always
     ports:
-      - "172.28.5.7:4040:4040"
-      - "172.28.5.7:4041:4041"
-    command: -listen 0.0.0.0:4040 -api 0.0.0.0:4041 -target searx:8080
+      - 172.28.5.203:4040:4040
+      - 172.28.5.203:4041:4041
+    command: -listen 172.28.5.203:4040 -api 172.28.5.203:4041 -target 172.28.5.204:8080
     volumes:
       - filtron-config:/etc/filtron/:rw
     read_only: true
@@ -71,12 +75,13 @@ services:
     container_name: searx
     image: searx/searx:latest
     networks:
-      - net-srx
+      net-srx:
+        ipv4_address: 172.28.5.202
     depends_on:
       - "download-template"
     restart: always
     ports:
-      - "172.28.5.6:8080:8080"
+      - 172.28.5.202:8080:8080
     command: ${SEARX_COMMAND:-}
     volumes:
       - searx-data:/etc/searx:rw
@@ -91,12 +96,13 @@ services:
     container_name: morty
     image: dalf/morty
     networks:
-      - net-srx
+      net-srx:
+        ipv4_address: 172.28.5.201
     depends_on:
       - "download-template"
     restart: always
     ports:
-      - "172.28.5.5:3000:3000"
+      - 172.28.5.201:3000:3000
     command: -timeout 6 -ipv6
     environment:
       - MORTY_KEY=${MORTY_KEY}
@@ -117,11 +123,6 @@ networks:
           - subnet: 172.28.0.0/16
             ip_range: 172.28.5.0/24
             gateway: 172.28.5.254
-            aux_addresses:
-              morty: 172.28.5.5
-              searx: 172.28.5.6
-              filtron: 172.28.5.7
-              searx-proxy: 172.28.5.8
 
     
 volumes:
