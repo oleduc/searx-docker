@@ -2,23 +2,21 @@ version: '3.7'
 
 services:
   download-template:
-    image: alpine/git
+    build: https://github.com/oleduc/git-config.git
     container_name: download-template
     command: -c "
-        cd /build/ &&
-        ls -la &&
-        git clone ${CONFIG_REPO_URL} &&
+        mkdir -p /build/ && cd /build/ &&
+        git clone ${CONFIG_REPO_URL} repo &&
+        ls -la ./repo/ &&
         mkdir -p filtron/ &&
         mkdir -p nginx/ &&
         mkdir -p nginx/certs &&
-        mv ./searx-docker/rules.json /build/filtron/ &&
-        envsubst '$${SEARX_HOSTNAME} $${UPSTREAM_PROTOCOL}' < ./searx-docker/nginx-proxy.conf.template > /build/nginx/conf.d/nginx-proxy.conf &&
+        mv ./repo/rules.json /build/filtron/ &&
+        envsubst '$${SEARX_HOSTNAME} $${UPSTREAM_PROTOCOL}' < ./repo/nginx-proxy.conf.template > /build/nginx/conf.d/nginx-proxy.conf &&
         cp ${SSL_CERT_PATH} /build/nginx/certs/fullchain.crt &&
         cp ${SSL_KEY_PATH} /build/nginx/certs/private.key &&
-        ls -la /build/ &&
-        ls -la /build/filtron/
+        ls -la /build/ && ls -la /build/filtron/ && ls -la /build/nginx/
       "
-    entrypoint: "ash"
     environment:
       - SEARX_HOSTNAME=${SEARX_HOSTNAME:-localhost}
       - UPSTREAM_PROTOCOL=${UPSTREAM_PROTOCOL:-http}
