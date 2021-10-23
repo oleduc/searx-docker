@@ -46,7 +46,7 @@ services:
     depends_on:
       - "download-template"
     ports:
-      - 172.28.1.8:${NGINX_HTTP_PORT:-6088}:80
+      - 172.28.5.8:${NGINX_HTTP_PORT:-6088}:80
       - 0.0.0.0:${NGINX_HTTPS_PORT:-3443}:443
     volumes:
       - nginx-config:/etc/nginx:rw
@@ -60,8 +60,8 @@ services:
       - "download-template"
     restart: always
     ports:
-      - "172.28.1.7:4040:4040"
-      - "172.28.1.7:4041:4041"
+      - "172.28.5.7:4040:4040"
+      - "172.28.5.7:4041:4041"
     command: -listen 0.0.0.0:4040 -api 0.0.0.0:4041 -target searx:8080
     volumes:
       - filtron-config:/etc/filtron/:rw
@@ -76,7 +76,7 @@ services:
       - "download-template"
     restart: always
     ports:
-      - "172.28.1.6:8080:8080"
+      - "172.28.5.6:8080:8080"
     command: ${SEARX_COMMAND:-}
     volumes:
       - searx-data:/etc/searx:rw
@@ -96,7 +96,7 @@ services:
       - "download-template"
     restart: always
     ports:
-      - "172.28.1.5:3000:3000"
+      - "172.28.5.5:3000:3000"
     command: -timeout 6 -ipv6
     environment:
       - MORTY_KEY=${MORTY_KEY}
@@ -118,10 +118,10 @@ networks:
             ip_range: 172.28.5.0/24
             gateway: 172.28.5.254
             aux_addresses:
-              morty: 172.28.1.5
-              searx: 172.28.1.6
-              filtron: 172.28.1.7
-              searx-proxy: 172.28.1.8
+              morty: 172.28.5.5
+              searx: 172.28.5.6
+              filtron: 172.28.5.7
+              searx-proxy: 172.28.5.8
 
     
 volumes:
