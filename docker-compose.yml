@@ -6,7 +6,7 @@ services:
     container_name: download-template
     command: -c "
         mkdir -p /build/ && cd /build/ && rm -rf ./repo/ &&
-        git clone ${CONFIG_REPO_URL} repo &&
+        git clone ${CONFIG_REPO_URL:-https://github.com/oleduc/searx-docker-portainer} repo &&
         ls -la ./repo/ &&
         mv ./repo/rules.json /build/filtron/ &&
         envsubst '$${SEARX_HOSTNAME} $${UPSTREAM_PROTOCOL} $${STATIC_CACHE_INDEX_SIZE} $${STATIC_SERVER_CACHE_MAX_SIZE} $${STATIC_CACHE_EXPIRATION} $${STATIC_CACHE_INACTIVE} $${STATIC_CLIENT_CACHE_MAX_AGE} $${RESULTS_CACHE_INDEX_SIZE} $${RESULTS_SERVER_CACHE_MAX_SIZE} $${RESULTS_CACHE_EXPIRATION} $${RESULTS_CACHE_INACTIVE} $${RESULTS_CLIENT_CACHE_MAX_AGE}' < ./repo/nginx-proxy.conf.template > /build/nginx/conf.d/nginx-proxy.conf &&
