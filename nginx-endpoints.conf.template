@@ -1,11 +1,9 @@
-root /usr/share/nginx/html;
-
 location (/config/|/status/) {
      add_header 'Access-Control-Allow-Origin' '$host';
      add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
 }
 
-location /static/ {
+location (/static|/static/|/static/*) {
     access_log off;
     expires ${STATIC_CACHE_EXPIRATION};
     add_header Cache-Control "public, max-age=${STATIC_CLIENT_CACHE_MAX_AGE}";
@@ -39,3 +37,5 @@ location / {
     proxy_cache searx_results;
     proxy_pass http://filtron:4040/;
 }
+
+root /usr/share/nginx/html;
