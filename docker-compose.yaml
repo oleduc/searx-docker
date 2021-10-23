@@ -4,12 +4,30 @@ services:
   download-template:
     image: alpine/git
     container_name: download-template
-    command: ["-c", "cd /build/ && ls -la && git clone https://github.com/oleduc/searx-docker && mkdir -p filtron/ && mkdir -p caddy/ && mv ./searx-docker/Caddyfile /build/caddy/ && mv ./searx-docker/rules.json /build/filtron/ && ls -la /build/ && ls -la /build/caddy/ && ls -la /build/filtron/"]
+    command: ["-c", "cd /build/ && ls -la && git clone https://github.com/oleduc/searx-docker && mkdir -p filtron/ && mkdir -p caddy/ && envsubst '$${SEARX_HOSTNAME} $${UPSTREAM_PROTOCOL}' < ./searx-docker/nginx-proxy.conf.template > /etc/nginx/conf.d/nginx-proxy.conf && mv ./searx-docker/Caddyfile /build/caddy/ && mv ./searx-docker/rules.json /build/filtron/ && ls -la /build/ && ls -la /build/caddy/ && ls -la /build/filtron/"]
     entrypoint: "ash"
+    environment:
+      - SEARX_HOSTNAME=${SEARX_HOSTNAME:-localhost}
+      - UPSTREAM_PROTOCOL=${UPSTREAM_PROTOCOL:-http}
     volumes:
       - caddy-routes:/build/caddy/:rw
       - filtron-config:/build/filtron/:rw
+      - nginx-config:/build/nginx/:rw
       - .:/git
+
+  nginx:
+    container_name: nginx
+    image: nginx:1.21.3-alpine
+    restart: on-failure
+    depends_on:
+      - "download-template"
+    ports:
+      - ${NGINX_HTTP_PORT:-6088}:80
+      - ${NGINX_HTTPS_PORT:-3443}:443
+    networks:
+      - searx
+    volumes:
+      - nginx-config:/etc/nginx:rw
       
   caddy:
     container_name: caddy
@@ -91,5 +109,7 @@ volumes:
   caddy-data:
   caddy-config:
   caddy-routes:
+  nginx-config:
+  nginx-certs:
   filtron-config:
   searx-data:
