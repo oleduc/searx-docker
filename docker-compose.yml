@@ -4,6 +4,8 @@ services:
   download-template:
     build: https://github.com/oleduc/git-config.git
     container_name: download-template
+    networks:
+      - searx-cluster
     command: -c "
         mkdir -p /build/ && cd /build/ && rm -rf ./repo/ &&
         git clone ${CONFIG_REPO_URL} repo &&
@@ -38,6 +40,8 @@ services:
   searx-proxy:
     container_name: searx-proxy
     image: nginx:1.21.3-alpine
+    networks:
+      - searx-cluster
     restart: on-failure
     depends_on:
       - "download-template"
@@ -50,6 +54,8 @@ services:
   filtron:
     container_name: filtron
     image: dalf/filtron
+    networks:
+      - searx-cluster
     depends_on:
       - "download-template"
     restart: always
@@ -64,6 +70,8 @@ services:
   searx:
     container_name: searx
     image: searx/searx:latest
+    networks:
+      - searx-cluster
     depends_on:
       - "download-template"
     restart: always
@@ -82,6 +90,8 @@ services:
   morty:
     container_name: morty
     image: dalf/morty
+    networks:
+      - searx-cluster
     depends_on:
       - "download-template"
     restart: always
