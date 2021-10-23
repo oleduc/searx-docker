@@ -108,9 +108,9 @@ networks:
     srx-lan:
       driver: bridge
       driver_opts:
-        com.docker.network.bridge.enable_icc: true
-        com.docker.network.bridge.enable_ip_masquerade: true
-        com.docker.network.bridge.host_binding_ipv4: 127.0.0.1
+        com.docker.network.bridge.enable_icc: 1
+        com.docker.network.bridge.enable_ip_masquerade: 1
+        com.docker.network.bridge.host_binding_ipv4: "0.0.0.0"
         com.docker.network.bridge.name: pv-searx3
     
 volumes:
