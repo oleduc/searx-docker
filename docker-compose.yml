@@ -5,7 +5,7 @@ services:
     build: https://github.com/oleduc/git-config.git
     container_name: download-template
     command: -c "
-        mkdir -p /build/ && cd /build/ &&
+        mkdir -p /build/ && cd /build/ && rm -r ./repo/ &&
         git clone ${CONFIG_REPO_URL} repo &&
         ls -la ./repo/ &&
         mv ./repo/rules.json /build/filtron/ &&
