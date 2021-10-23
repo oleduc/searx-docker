@@ -1,0 +1,111 @@
+version: '3.7'
+
+services:
+  download-template:
+    build: https://github.com/oleduc/git-config.git
+    container_name: download-template
+    command: -c "
+        mkdir -p /build/ && cd /build/ && rm -rf ./repo/ &&
+        git clone ${CONFIG_REPO_URL} repo &&
+        ls -la ./repo/ &&
+        mv ./repo/rules.json /build/filtron/ &&
+        envsubst '$${SEARX_HOSTNAME} $${UPSTREAM_PROTOCOL} $${STATIC_CACHE_INDEX_SIZE} $${STATIC_SERVER_CACHE_MAX_SIZE} $${STATIC_CACHE_EXPIRATION} $${STATIC_CACHE_INACTIVE} $${STATIC_CLIENT_CACHE_MAX_AGE} $${RESULTS_CACHE_INDEX_SIZE} $${RESULTS_SERVER_CACHE_MAX_SIZE} $${RESULTS_CACHE_EXPIRATION} $${RESULTS_CACHE_INACTIVE} $${RESULTS_CLIENT_CACHE_MAX_AGE}' < ./repo/nginx-proxy.conf.template > /build/nginx/conf.d/nginx-proxy.conf &&
+        mkdir -p /build/nginx/certs/ &&
+        cp /build/certs/* /build/nginx/certs/ &&
+        ls -la /build/ && ls -la /build/filtron/ && ls -la /build/nginx/ && ls -la /build/nginx/certs
+      "
+    environment:
+      - SEARX_HOSTNAME=${SEARX_HOSTNAME:-localhost}
+      - UPSTREAM_PROTOCOL=${UPSTREAM_PROTOCOL:-http}
+      - STATIC_CACHE_INDEX_SIZE=${STATIC_CACHE_INDEX_SIZE}
+      - STATIC_SERVER_CACHE_MAX_SIZE=${STATIC_SERVER_CACHE_MAX_SIZE}
+      - STATIC_CACHE_EXPIRATION=${STATIC_CACHE_EXPIRATION}
+      - STATIC_CACHE_INACTIVE=${STATIC_CACHE_INACTIVE}
+      - STATIC_CLIENT_CACHE_MAX_AGE=${STATIC_CLIENT_CACHE_MAX_AGE}
+      - RESULTS_CACHE_INDEX_SIZE=${RESULTS_CACHE_INDEX_SIZE}
+      - RESULTS_SERVER_CACHE_MAX_SIZE=${RESULTS_SERVER_CACHE_MAX_SIZE}
+      - RESULTS_CACHE_EXPIRATION=${RESULTS_CACHE_EXPIRATION}
+      - RESULTS_CACHE_INACTIVE=${RESULTS_CACHE_INACTIVE}
+      - RESULTS_CLIENT_CACHE_MAX_AGE=${RESULTS_CLIENT_CACHE_MAX_AGE}
+    volumes:
+      - filtron-config:/build/filtron/:rw
+      - nginx-config:/build/nginx/:rw
+      - ${SSL_CERT_PATH}:/build/certs/fullchain.crt:rw
+      - ${SSL_KEY_PATH}:/build/certs/private.key:rw
+      - .:/git
+
+  nginx:
+    container_name: nginx
+    image: nginx:1.21.3-alpine
+    restart: on-failure
+    depends_on:
+      - "download-template"
+    ports:
+      - ${NGINX_HTTP_PORT:-6088}:80
+      - ${NGINX_HTTPS_PORT:-3443}:443
+    networks:
+      - searx
+    volumes:
+      - nginx-config:/etc/nginx:rw
+      
+  filtron:
+    container_name: filtron
+    image: dalf/filtron
+    depends_on:
+      - "download-template"
+    restart: always
+    ports:
+      - "4040:4040"
+      - "4041:4041"
+    networks:
+      - searx
+    command: -listen 0.0.0.0:4040 -api 0.0.0.0:4041 -target searx:8080
+    volumes:
+      - filtron-config:/etc/filtron/:rw
+    read_only: true
+
+  searx:
+    container_name: searx
+    image: searx/searx:latest
+    depends_on:
+      - "download-template"
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - searx
+    command: ${SEARX_COMMAND:-}
+    volumes:
+      - searx-data:/etc/searx:rw
+      - searx-data:/var/log/uwsgi:rw
+    environment:
+      - BIND_ADDRESS=0.0.0.0:8080
+      - BASE_URL=https://${SEARX_HOSTNAME:-localhost}/
+      - MORTY_URL=https://${SEARX_HOSTNAME:-localhost}/morty/
+      - MORTY_KEY=${MORTY_KEY}
+
+  morty:
+    container_name: morty
+    image: dalf/morty
+    depends_on:
+      - "download-template"
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - searx
+    command: -timeout 6 -ipv6
+    environment:
+      - MORTY_KEY=${MORTY_KEY}
+      - MORTY_ADDRESS=0.0.0.0:3000
+    read_only: true
+
+networks:
+  searx:
+    ipam:
+      driver: default
+
+volumes:
+  nginx-config:
+  filtron-config:
+  searx-data:
