@@ -9,7 +9,7 @@ services:
         git clone ${CONFIG_REPO_URL} repo &&
         ls -la ./repo/ &&
         mv ./repo/rules.json /build/filtron/ &&
-        envsubst '$${SEARX_HOSTNAME} $${UPSTREAM_PROTOCOL}' < ./repo/nginx-proxy.conf.template > /build/nginx/conf.d/nginx-proxy.conf &&
+        envsubst '$${SEARX_HOSTNAME} $${UPSTREAM_PROTOCOL} $${STATIC_SERVER_CACHE_SIZE} $${STATIC_CACHE_EXPIRATION} $${STATIC_CACHE_INACTIVE} $${STATIC_CLIENT_CACHE_MAX_AGE} $${RESULTS_SERVER_CACHE_SIZE} $${RESULTS_CACHE_EXPIRATION} $${RESULTS_CACHE_INACTIVE} $${RESULTS_CLIENT_CACHE_MAX_AGE}' < ./repo/nginx-proxy.conf.template > /build/nginx/conf.d/nginx-proxy.conf &&
         mkdir -p /build/nginx/certs/ &&
         cp /build/certs/* /build/nginx/certs/ &&
         ls -la /build/ && ls -la /build/filtron/ && ls -la /build/nginx/ && ls -la /build/nginx/certs
