@@ -5,14 +5,16 @@ proxy_cache_path /etc/cache-results levels=1:2 keys_zone=searx_results:${RESULTS
                  inactive=${RESULTS_CACHE_INACTIVE} use_temp_path=off;
 
 server {
-    listen 80 default_server;
+    listen *:80 default_server;
+    listen [::]:80 default_server;
     server_name ${SEARX_HOSTNAME};
 
     return 301 https://$host$request_uri;
 }
 
 server {
-    listen 443 ssl;
+    listen *:443 ssl;
+    listen [::]:443 ssl;
     server_name ${SEARX_HOSTNAME};
 
     ssl_certificate     /etc/nginx/certs/fullchain.crt;
