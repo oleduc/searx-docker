@@ -4,7 +4,23 @@ services:
   download-template:
     image: alpine/git
     container_name: download-template
-    command: ["-c", "cd /build/ && ls -la && git clone https://github.com/oleduc/searx-docker && mkdir -p filtron/ && mkdir -p caddy/ && envsubst '$${SEARX_HOSTNAME} $${UPSTREAM_PROTOCOL}' < ./searx-docker/nginx-proxy.conf.template > /etc/nginx/conf.d/nginx-proxy.conf && mv ./searx-docker/Caddyfile /build/caddy/ && mv ./searx-docker/rules.json /build/filtron/ && ls -la /build/ && ls -la /build/caddy/ && ls -la /build/filtron/"]
+    command: ["-c", "
+        cd /build/ &&
+        ls -la &&
+        git clone https://github.com/oleduc/searx-docker &&
+        mkdir -p filtron/ &&
+        mkdir -p caddy/ &&
+        mkdir -p nginx/ &&
+        mkdir -p nginx/certs &&
+        mv ./searx-docker/Caddyfile /build/caddy/ &&
+        mv ./searx-docker/rules.json /build/filtron/ &&
+        envsubst '$${SEARX_HOSTNAME} $${UPSTREAM_PROTOCOL}' < ./searx-docker/nginx-proxy.conf.template > /build/nginx/conf.d/nginx-proxy.conf &&
+        cp ${SSL_CERT_PATH} /build/nginx/certs/fullchain.crt &&
+        cp ${SSL_KEY_PATH} /build/nginx/certs/private.key &&
+        ls -la /build/ &&
+        ls -la /build/caddy/ &&
+        ls -la /build/filtron/
+      "]
     entrypoint: "ash"
     environment:
       - SEARX_HOSTNAME=${SEARX_HOSTNAME:-localhost}
