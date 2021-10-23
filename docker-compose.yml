@@ -10,9 +10,9 @@ services:
         ls -la ./repo/ &&
         mv ./repo/rules.json /build/filtron/ &&
         envsubst '$${SEARX_HOSTNAME} $${UPSTREAM_PROTOCOL}' < ./repo/nginx-proxy.conf.template > /build/nginx/conf.d/nginx-proxy.conf &&
-        ls -la /build/certs/ &&
+        mkdir -p /build/nginx/certs/ &&
         cp /build/certs/* /build/nginx/certs/ &&
-        ls -la /build/ && ls -la /build/filtron/ && ls -la /build/nginx/
+        ls -la /build/ && ls -la /build/filtron/ && ls -la /build/nginx/ && ls -la /build/nginx/certs
       "
     environment:
       - SEARX_HOSTNAME=${SEARX_HOSTNAME:-localhost}
