@@ -43,7 +43,7 @@ server {
     # Filtron Forwaring catchall
     location / {
         gzip_static on;
-        encode zstd gzip
+        encode zstd gzip;
         
         proxy_set_header X-Forwarded-Port $host;
         proxy_set_header Access-Control-Allow-Methods "GET, OPTIONS";
