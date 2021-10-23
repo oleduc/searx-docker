@@ -35,8 +35,8 @@ services:
       - ${SSL_KEY_PATH}:/build/certs/private.key:rw
       - .:/git
 
-  nginx:
-    container_name: nginx
+  searx-proxy:
+    container_name: searx-proxy
     image: nginx:1.21.3-alpine
     restart: on-failure
     depends_on:
