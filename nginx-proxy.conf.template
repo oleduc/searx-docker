@@ -1,8 +1,8 @@
-proxy_cache_path /etc/cache-static levels=1:2 keys_zone=searx_static:30d max_size=1g
-                 inactive=1d use_temp_path=off;
+proxy_cache_path /etc/cache-static levels=1:2 keys_zone=searx_static:30d max_size=${STATIC_SERVER_CACHE_SIZE}
+                 inactive=${STATIC_CACHE_INACTIVE} use_temp_path=off;
 
-proxy_cache_path /etc/cache-results levels=1:2 keys_zone=searx_results:10m max_size=5g
-                 inactive=5m use_temp_path=off;
+proxy_cache_path /etc/cache-results levels=1:2 keys_zone=searx_results:10m max_size=${RESULTS_SERVER_CACHE_SIZE}
+                 inactive=${RESULTS_CACHE_INACTIVE} use_temp_path=off;
 
 server {
     listen 80 default_server;
@@ -27,16 +27,16 @@ server {
 
    location /static/ {
        access_log off;
-       expires 30d;
-       add_header Cache-Control "public, max-age=2592000";
+       expires ${STATIC_CACHE_EXPIRATION};
+       add_header Cache-Control "public, max-age=${STATIC_CLIENT_CACHE_MAX_AGE}";
 
        proxy_cache searx_static;
        proxy_pass ${UPSTREAM_PROTOCOL}://searx:8080/;
     }
 
     location ~ /static {
-       expires 10m;
-       add_header Cache-Control "public, max-age=600";
+       expires ${RESULTS_CACHE_EXPIRATION};
+       add_header Cache-Control "public, max-age=${RESULTS_CLIENT_CACHE_MAX_AGE}";
     }
 
    location ~ /morty/ {
