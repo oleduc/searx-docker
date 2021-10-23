@@ -11,7 +11,7 @@ location /static/ {
     add_header Cache-Control "public, max-age=${STATIC_CLIENT_CACHE_MAX_AGE}";
     
     proxy_cache searx_static;
-    proxy_pass ${UPSTREAM_PROTOCOL}://searx:8080/;
+    proxy_pass http://searx:8080/;
 }
 
 location ~ /static {
@@ -26,7 +26,7 @@ location ~ /morty/ {
 # Morty Forwarding
 location /morty/ {
     add_header 'Content-Security-Policy' "default-src 'none'; style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'self'; base-uri 'self'; img-src 'self' data:; font-src 'self'; frame-src 'self'";
-    proxy_pass ${UPSTREAM_PROTOCOL}://morty:3000/;
+    proxy_pass http://morty:3000/;
 }
 
 # Filtron Forwaring catchall
@@ -37,5 +37,5 @@ location / {
     proxy_set_header Access-Control-Allow-Methods "GET, OPTIONS";
 
     proxy_cache searx_results;
-    proxy_pass ${UPSTREAM_PROTOCOL}://filtron:4040/;
+    proxy_pass http://filtron:4040/;
 }
