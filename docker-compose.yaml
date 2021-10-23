@@ -9,16 +9,13 @@ services:
         ls -la &&
         git clone https://github.com/oleduc/searx-docker &&
         mkdir -p filtron/ &&
-        mkdir -p caddy/ &&
         mkdir -p nginx/ &&
         mkdir -p nginx/certs &&
-        mv ./searx-docker/Caddyfile /build/caddy/ &&
         mv ./searx-docker/rules.json /build/filtron/ &&
         envsubst '$${SEARX_HOSTNAME} $${UPSTREAM_PROTOCOL}' < ./searx-docker/nginx-proxy.conf.template > /build/nginx/conf.d/nginx-proxy.conf &&
         cp ${SSL_CERT_PATH} /build/nginx/certs/fullchain.crt &&
         cp ${SSL_KEY_PATH} /build/nginx/certs/private.key &&
         ls -la /build/ &&
-        ls -la /build/caddy/ &&
         ls -la /build/filtron/
       "
     entrypoint: "ash"
@@ -26,7 +23,6 @@ services:
       - SEARX_HOSTNAME=${SEARX_HOSTNAME:-localhost}
       - UPSTREAM_PROTOCOL=${UPSTREAM_PROTOCOL:-http}
     volumes:
-      - caddy-routes:/build/caddy/:rw
       - filtron-config:/build/filtron/:rw
       - nginx-config:/build/nginx/:rw
       - .:/git
@@ -45,25 +41,6 @@ services:
     volumes:
       - nginx-config:/etc/nginx:rw
       
-  caddy:
-    container_name: caddy
-    image: caddy:2-alpine
-    depends_on:
-      - "download-template"
-    restart: on-failure
-    ports:
-      - ${CADDY_HTTP_PORT:-8088}:80
-      - ${CADDY_HTTPS_PORT:-4443}:443
-    networks:
-      - searx
-    volumes:
-      - caddy-routes:/etc/caddy/:ro
-      - caddy-data:/data:rw
-      - caddy-config:/config:rw
-    environment:
-      - SEARX_HOSTNAME=${SEARX_HOSTNAME:-localhost}
-      - SEARX_TLS=${LETSENCRYPT_EMAIL:-internal}
-
   filtron:
     container_name: filtron
     image: dalf/filtron
@@ -122,9 +99,6 @@ networks:
       driver: default
 
 volumes:
-  caddy-data:
-  caddy-config:
-  caddy-routes:
   nginx-config:
   nginx-certs:
   filtron-config:
