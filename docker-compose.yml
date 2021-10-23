@@ -5,7 +5,7 @@ services:
     build: https://github.com/oleduc/git-config.git
     container_name: download-template
     networks:
-      - searx-cluster
+      - net-srx
     command: -c "
         mkdir -p /build/ && cd /build/ && rm -rf ./repo/ &&
         git clone ${CONFIG_REPO_URL} repo &&
@@ -41,7 +41,7 @@ services:
     container_name: searx-proxy
     image: nginx:1.21.3-alpine
     networks:
-      - searx-cluster
+      - net-srx
     restart: on-failure
     depends_on:
       - "download-template"
@@ -55,7 +55,7 @@ services:
     container_name: filtron
     image: dalf/filtron
     networks:
-      - searx-cluster
+      - net-srx
     depends_on:
       - "download-template"
     restart: always
@@ -71,7 +71,7 @@ services:
     container_name: searx
     image: searx/searx:latest
     networks:
-      - searx-cluster
+      - net-srx
     depends_on:
       - "download-template"
     restart: always
@@ -91,7 +91,7 @@ services:
     container_name: morty
     image: dalf/morty
     networks:
-      - searx-cluster
+      - net-srx
     depends_on:
       - "download-template"
     restart: always
@@ -104,7 +104,7 @@ services:
     read_only: true
 
 networks:
-    searx-cluster:
+    net-srx:
       driver: bridge
       driver_opts:
         com.docker.network.bridge.enable_icc: 1
