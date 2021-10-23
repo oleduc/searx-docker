@@ -4,7 +4,7 @@ services:
   download-template:
     image: alpine/git
     container_name: download-template
-    command: ["-c", "
+    command: -c "
         cd /build/ &&
         ls -la &&
         git clone https://github.com/oleduc/searx-docker &&
@@ -20,7 +20,7 @@ services:
         ls -la /build/ &&
         ls -la /build/caddy/ &&
         ls -la /build/filtron/
-      "]
+      "
     entrypoint: "ash"
     environment:
       - SEARX_HOSTNAME=${SEARX_HOSTNAME:-localhost}
