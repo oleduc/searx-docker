@@ -1,19 +1,25 @@
+proxy_cache_path /etc/cache-static levels=1:2 keys_zone=searx_static:30d max_size=1g
+                 inactive=1d use_temp_path=off;
+
+proxy_cache_path /etc/cache-results levels=1:2 keys_zone=searx_results:10m max_size=5g
+                 inactive=5m use_temp_path=off;
+
 server {
     listen 80 default_server;
     server_name ${SEARX_HOSTNAME};
-    
+
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl;
     server_name ${SEARX_HOSTNAME};
-    
+
     ssl_certificate     /etc/nginx/certs/fullchain.crt;
     ssl_certificate_key /etc/nginx/certs/private.key;
-    
+
     root /usr/share/nginx/html;
-    
+
    location (/config/|/status/) {
         add_header 'Access-Control-Allow-Origin' '$host';
         add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
@@ -23,32 +29,36 @@ server {
        access_log off;
        expires 30d;
        add_header Cache-Control "public, max-age=2592000";
+
+       proxy_cache searx_static;
+       proxy_pass ${UPSTREAM_PROTOCOL}://searx:8080/;
     }
-    
+
     location ~ /static {
-       expires 1m;
-       add_header Cache-Control "public, max-age=60";
+       expires 10m;
+       add_header Cache-Control "public, max-age=600";
     }
-    
+
    location ~ /morty/ {
-       add_header 'Content-Security-Policy' "upgrade-insecure-requests; default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; form-action 'self'; font-src 'self'; frame-ancestors 'self'; base-uri 'self'; connect-src 'self' https://overpass-api.de; img-src 'self' data: https://*.tile.openstreetmap.org; frame-src https://www.youtube-nocookie.com https://player.vimeo.com https://www.dailymotion.com https://www.deezer.com https://www.mixcloud.com https://w.soundcloud.com https://embed.spotify.com";
+       add_header 'Content-Security-Policy' "upgrade-insecure-requests; default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; form-action 'self'; font-src 'self'; frame-ancestors 'self'; base-$
     }
-    
+
     # Morty Forwarding
     location /morty/ {
-       add_header 'Content-Security-Policy' "default-src 'none'; style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'self'; base-uri 'self'; img-src 'self' data:; font-src 'self'; frame-src 'self'";
+       add_header 'Content-Security-Policy' "default-src 'none'; style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'self'; base-uri 'self'; img-src 'self' data:; font-src 'self'; frame-src 's$
        proxy_pass ${UPSTREAM_PROTOCOL}://morty:3000/;
     }
-    
+
     # Filtron Forwaring catchall
     location / {
         gzip_static on;
-        encode zstd gzip;
-        
+
         proxy_set_header X-Forwarded-Port $host;
         proxy_set_header Access-Control-Allow-Methods "GET, OPTIONS";
+
+        proxy_cache searx_results;
         proxy_pass ${UPSTREAM_PROTOCOL}://filtron:4040/;
     }
-
 }
+
 
