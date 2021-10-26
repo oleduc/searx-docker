@@ -45,9 +45,9 @@ services:
     restart: on-failure
     depends_on:
       - "download-template"
-    ports:
-      - ${NGINX_HTTP_PORT:-5080}:80
-      - ${NGINX_HTTPS_PORT:-5443}:443
+    #ports:
+    #  - ${NGINX_HTTP_PORT:-5080}:80
+    #  - ${NGINX_HTTPS_PORT:-5443}:443
     volumes:
       - nginx-config:/etc/nginx:rw
       
