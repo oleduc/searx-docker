@@ -38,5 +38,5 @@ location / {
     proxy_set_header Access-Control-Allow-Methods "GET, OPTIONS";
 
     #proxy_cache searx_results;
-    proxy_pass http://searx:8080/;
+    proxy_pass http://filtron:4040/;
 }
