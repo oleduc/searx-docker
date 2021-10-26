@@ -7,7 +7,7 @@ proxy_cache_path /etc/cache-results levels=1:2 keys_zone=searx_results:${RESULTS
 upstream filtron-server { 
   server filtron:4040; 
   keepalive 64; 
-};
+}
 
 server {
     listen *:80 default_server;
