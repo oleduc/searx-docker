@@ -12,7 +12,7 @@ location ^~ /static {
     proxy_set_header   X-Forwarded-For $remote_addr;
     proxy_set_header   Host search.leduc.cc;
 
-    proxy_pass http://searx:8080/;
+    proxy_pass http://searx:8080/static/;
 }
 
 #location ~ /static {
