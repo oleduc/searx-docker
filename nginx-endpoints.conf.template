@@ -40,5 +40,5 @@ location / {
     proxy_http_version 1.1; 
 
     #proxy_cache searx_results;
-    proxy_pass http://upstream-filtron/;
+    proxy_pass http://filtron-server/;
 }
