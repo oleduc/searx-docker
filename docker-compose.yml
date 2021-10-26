@@ -60,9 +60,9 @@ services:
       - "download-template"
       - "searx-proxy"
     restart: always
-    ports:
-      - 4040:4040
-      - 4041:4041
+    #ports:
+    #  - 4040:4040
+    #  - 4041:4041
     command: -listen 0.0.0.0:4040 -api 0.0.0.0:4041 -target searx:8080
     volumes:
       - filtron-config:/etc/filtron/:rw
@@ -76,8 +76,8 @@ services:
     depends_on:
       - "download-template"
     restart: always
-    ports:
-      - 8080:8080
+    #ports:
+    #  - 8080:8080
     command: ${SEARX_COMMAND:-}
     volumes:
       - searx-data:/etc/searx:rw
@@ -96,8 +96,8 @@ services:
     depends_on:
       - "download-template"
     restart: always
-    ports:
-      - 3000:3000
+    #ports:
+    #  - 3000:3000
     command: -timeout 6 -ipv6
     environment:
       - MORTY_KEY=${MORTY_KEY}
