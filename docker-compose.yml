@@ -84,7 +84,7 @@ services:
       - searx-data:/var/log/uwsgi:rw
     environment:
       - BIND_ADDRESS=0.0.0.0:8080
-      - BASE_URL=http://searx:8080/
+      - BASE_URL=https://${SEARX_HOSTNAME}/
       - MORTY_URL=https://${SEARX_HOSTNAME:-localhost}:${NGINX_HTTPS_PORT:-3443}/morty/
       - MORTY_KEY=${MORTY_KEY}
 
