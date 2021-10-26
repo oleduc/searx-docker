@@ -4,7 +4,7 @@ proxy_cache_path /etc/cache-static levels=1:2 keys_zone=searx_static:${STATIC_CA
 proxy_cache_path /etc/cache-results levels=1:2 keys_zone=searx_results:${RESULTS_CACHE_INDEX_SIZE} max_size=${RESULTS_SERVER_CACHE_MAX_SIZE}
                  inactive=${RESULTS_CACHE_INACTIVE} use_temp_path=off;
 
-upstream-filtron { 
+upstream filtron-server { 
   server filtron:4040; 
   keepalive 64; 
 };
